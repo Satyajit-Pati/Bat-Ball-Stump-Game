@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bat Ball Stump Game</title>
+  <link rel="stylesheet" href="cricket.css">
+</head>
+<body>
+
+  <h1>Bat Ball Stump Game</h1>
+
+  <div class="game-container">
+    <button class="choice-button" onclick="handleUserChoice('Bat')">
+      <img src="images/bat.png" alt="Bat" class="choice-image">
+    </button>
+    <button class="choice-button" onclick="handleUserChoice('Ball')">
+      <img src="images/ball.png" alt="Ball" class="choice-image">
+    </button>
+    <button class="choice-button" onclick="handleUserChoice('Stump')">
+      <img src="images/stump.png" alt="Stump" class="choice-image">
+    </button>
+  </div>
+
+  <div class="result-container">
+    <h3 id="user-move" class="result-text"></h3>
+    <h3 id="computer-move" class="result-text"></h3>
+    <h3 id="result" class="result-text"></h3>
+    <h3 id="score" class="score"></h3>
+  </div>
+
+  <button class="reset-button" onclick="resetScore()">Reset Score</button>
+
+  <script>
+    // Load score from localStorage or initialize it
+    let score = JSON.parse(localStorage.getItem('Score')) || {
+      win: 0,
+      lost: 0,
+      tie: 0
+    };
+
+    // Function to generate computer's choice
+    function generateComputerChoice() {
+      const choices = ['Bat', 'Ball', 'Stump'];
+      return choices[Math.floor(Math.random() * choices.length)];
+    }
+
+    // Function to determine the result
+    function getResult(userMove, computerMove) {
+      if (userMove === computerMove) {
+        score.tie++;
+        return 'It\'s a Tie!';
+      }
+
+      if (
+        (userMove === 'Bat' && computerMove === 'Ball') ||
+        (userMove === 'Ball' && computerMove === 'Stump') ||
+        (userMove === 'Stump' && computerMove === 'Bat')
+      ) {
+        score.win++;
+        return 'You Won! 🎉';
+      } else {
+        score.lost++;
+        return 'Computer Won! 😔';
+      }
+    }
+
+    // Function to update the result on screen
+    function showResult(userMove, computerMove, result) {
+      localStorage.setItem('Score', JSON.stringify(score));
+
+      // Update text and apply color for win/loss/tie
+      document.querySelector('#user-move').innerText = `You chose: ${userMove}`;
+      document.querySelector('#computer-move').innerText = `Computer chose: ${computerMove}`;
+      const resultElement = document.querySelector('#result');
+      resultElement.innerText = result;
+
+      // Add color based on result
+      if (result.includes('Won')) {
+        resultElement.className = 'result-text win';
+      } else if (result.includes('Computer')) {
+        resultElement.className = 'result-text loss';
+      } else {
+        resultElement.className = 'result-text tie';
+      }
+
+      // Update score
+      document.querySelector('#score').innerText = 
+        `Score → Won: ${score.win} | Lost: ${score.lost} | Tie: ${score.tie}`;
+    }
+
+    // Handle user choice
+    function handleUserChoice(userMove) {
+      const computerChoice = generateComputerChoice();
+      const result = getResult(userMove, computerChoice);
+      showResult(userMove, computerChoice, result);
+    }
+
+    // Function to reset score and update UI
+    function resetScore() {
+      score = { win: 0, lost: 0, tie: 0 };
+      localStorage.setItem('Score', JSON.stringify(score));
+      document.querySelector('#user-move').innerText = '';
+      document.querySelector('#computer-move').innerText = '';
+      document.querySelector('#result').innerText = '';
+      document.querySelector('#score').innerText = 
+        `Score → Won: 0 | Lost: 0 | Tie: 0`;
+    }
+
+    // Initialize score on load
+    document.addEventListener('DOMContentLoaded', () => {
+      showResult('', '', '');
+    });
+  </script>
+</body>
+</html>
